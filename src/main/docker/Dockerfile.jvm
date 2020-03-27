@@ -1,0 +1,23 @@
+####
+# This Dockerfile is used in order to build a container that runs the Quarkus application in JVM mode
+#
+# Before building the docker image run:
+#
+# mvn clean package
+#
+# Then, build the image with:
+#
+# docker build -f src/main/docker/Dockerfile.jvm -t mgperez/gateway-keycloak-jvm .
+#
+# Then run the container using:
+#
+# docker run -i --rm -p 8762:8762 mgperez/gateway-keycloak-jvm
+#
+###
+FROM mgperez/alpine-java:base
+MAINTAINER mgperez
+RUN apk --no-cache --update add busybox-suid bash curl unzip sudo openssh-client shadow wget
+COPY target/*.jar /opt/spring-cloud/lib/app.jar
+VOLUME /var/lib/spring-cloud/config-repo
+ENTRYPOINT ["/usr/bin/java"]
+CMD ["-jar", "/opt/spring-cloud/lib/app.jar"]

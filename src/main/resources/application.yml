@@ -1,0 +1,82 @@
+spring:
+  profiles:
+    active: server
+server:
+  port: ${PORT:8762}
+---
+spring:
+  profiles:
+    active: redis
+  redis:
+    host: redis
+    port: 6379
+---
+spring:
+  profiles:
+    active: spring-boot
+  application:
+    name: gateway-keycloak-service
+  output.ansi.enabled: ALWAYS
+---
+spring:
+  profiles:
+    active: spring-cloud
+  cloud:
+    gateway:
+      routes:
+        - id: baeldung_route
+          uri: http://baeldung.com
+          predicates:
+            - Path=/ms_secure/**
+          filters:
+            - RewritePath=/ms_secure/(?<segment>.*), /$\{segment}
+        - id: gateway-service_route
+          uri: http://localhost:8888
+          predicates:
+            - Path=/api/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+        - id: ibcs-manager_route
+          uri: http://localhost:5000
+          predicates:
+            - Path=/ibcs-manager/**
+          filters:
+            - RewritePath=/ibcs-manager/(?<segment>.*), /$\{segment}
+
+# actuator-related configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        # Expose all monitoring endpoints
+        include: "*"
+  endpoint:
+    health:
+      # Always show health test details
+      show-details: always
+
+---
+spring:
+  profiles: dev
+  redis:
+    host: localhost
+---
+spring:
+  profiles:
+    active: logging
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.springframework.security.oauth2: INFO
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.http.server.reactive: DEBUG
+    org.springframework.web.reactive: DEBUG
+    reactor.netty.http.client: DEBUG
+    reactor.ipc.netty: DEBUG
+    reactor.netty: DEBUG
+    org.springframework.jdbc: DEBUG
+#    org.springframework.boot.autoconfigure: DEBUG
+#logging.level.io.github.resilience4j: DEBUG
+#logging.level.org.springframework.cloud.gateway.filter.factory: TRACE

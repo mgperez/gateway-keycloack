@@ -1,0 +1,48 @@
+version: '3'
+# https://github.com/docker-library/redis/issues/111
+
+networks:
+  redis-net:
+    driver: bridge
+
+volumes:
+  redis-data:
+
+services:
+  db:
+    image: redis
+    restart: unless-stopped
+    container_name: redis
+    command: ["redis-server", "--appendonly", "yes"]
+    hostname: redis
+#    ports: ['6379:6379'] # the HTTP endpoint
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - redis-net
+    volumes:
+      - redis-data:/data
+
+  gateway:
+    image: mgperez/gateway-keycloak-jvm
+    restart: unless-stopped
+    container_name: gateway
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile.jvm
+    links:
+      - db:redis
+    ports:
+      - 8762:8762
+    networks:
+      - redis-net
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8762/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 1s
+      retries: 66
