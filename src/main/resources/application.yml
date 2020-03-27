@@ -2,7 +2,9 @@ spring:
   profiles:
     active: server
 server:
-  port: ${PORT:8762}
+  port: ${PORT:8862}
+remote:
+  home: http://localhost:9090
 ---
 spring:
   profiles:
@@ -23,6 +25,9 @@ spring:
     active: spring-cloud
   cloud:
     gateway:
+      discovery:
+        locator:
+          enabled: true
       routes:
         - id: baeldung_route
           uri: http://baeldung.com
@@ -33,15 +38,26 @@ spring:
         - id: gateway-service_route
           uri: http://localhost:8888
           predicates:
-            - Path=/api/**
+            - Path=/test/**
           filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
+            - RewritePath=/test/(?<segment>.*), /$\{segment}
         - id: ibcs-manager_route
           uri: http://localhost:5000
           predicates:
             - Path=/ibcs-manager/**
           filters:
             - RewritePath=/ibcs-manager/(?<segment>.*), /$\{segment}
+        - id: api-service_route
+          uri: http://localhost:8080
+          predicates:
+            - Path=/api/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
 
 # actuator-related configuration
 management:
@@ -57,6 +73,27 @@ management:
 
 ---
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+#          jwk-set-uri: ${remote.home}/auth/realms/spring-boot-quickstart/.well-known/openid-configuration
+          issuer-uri: ${remote.home}/auth/realms/spring-boot-quickstart
+      client:
+        provider:
+          keycloak:
+            issuer-uri: ${remote.home}/auth/realms/spring-boot-quickstart
+ #           authorization-uri: ${remote.home}/auth/realms/spring-boot-quickstart/protocol/openid-connect/auth
+ #           token-uri: ${remote.home}/auth/realms/spring-boot-quickstart/protocol/openid-connect/token
+ #           user-info-uri: ${remote.home}/auth/realms/spring-boot-quickstart/protocol/openid-connect/userinfo
+ #           jwk-set-uri: ${remote.home}/auth/realms/spring-boot-quickstart/protocol/openid-connect/certs
+ #           user-name-attribute: preferred_username
+        registration:
+          keycloak:
+            client-id: app-authz-rest-springboot
+            client-secret: secret
+---
+spring:
   profiles: dev
   redis:
     host: localhost
@@ -68,11 +105,12 @@ logging:
   level:
     root: INFO
     org.springframework.web: INFO
-    org.springframework.security: INFO
-    org.springframework.security.oauth2: INFO
-    org.springframework.cloud.gateway: TRACE
-    org.springframework.http.server.reactive: DEBUG
+    org.springframework.web.HttpLogging: DEBUG
     org.springframework.web.reactive: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.http.server.reactive: DEBUG
     reactor.netty.http.client: DEBUG
     reactor.ipc.netty: DEBUG
     reactor.netty: DEBUG
@@ -80,3 +118,6 @@ logging:
 #    org.springframework.boot.autoconfigure: DEBUG
 #logging.level.io.github.resilience4j: DEBUG
 #logging.level.org.springframework.cloud.gateway.filter.factory: TRACE
+---
+# https://gitlab.com/datastork-examples/spring-keycloak-example/blob/master/src/main/resources/application.yml
+
