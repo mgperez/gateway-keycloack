@@ -2,9 +2,11 @@ spring:
   profiles:
     active: server
 server:
+  error:
+    include-stacktrace: never
   port: ${PORT:8862}
 remote:
-  home: http://localhost:9090
+  home: http://localhost:9090  # idp
 ---
 spring:
   profiles:
@@ -60,6 +62,9 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
 
 # actuator-related configuration
+# https://www.paradigmadigital.com/dev/monitorizar-microservicios-spring-boot-admin/
+# https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-endpoints
+# https://www.callicoder.com/spring-boot-actuator/
 management:
   endpoints:
     web:
@@ -70,6 +75,8 @@ management:
     health:
       # Always show health test details
       show-details: always
+      mail:
+        enabled: false # When using the MailService, configure an SMTP server and set this to true
 
 ---
 spring:
@@ -77,21 +84,21 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-#          jwk-set-uri: ${remote.home}/auth/realms/spring-boot-quickstart/.well-known/openid-configuration
           issuer-uri: ${remote.home}/auth/realms/spring-boot-quickstart
-      client:
-        provider:
-          keycloak:
-            issuer-uri: ${remote.home}/auth/realms/spring-boot-quickstart
- #           authorization-uri: ${remote.home}/auth/realms/spring-boot-quickstart/protocol/openid-connect/auth
- #           token-uri: ${remote.home}/auth/realms/spring-boot-quickstart/protocol/openid-connect/token
- #           user-info-uri: ${remote.home}/auth/realms/spring-boot-quickstart/protocol/openid-connect/userinfo
- #           jwk-set-uri: ${remote.home}/auth/realms/spring-boot-quickstart/protocol/openid-connect/certs
- #           user-name-attribute: preferred_username
-        registration:
-          keycloak:
-            client-id: app-authz-rest-springboot
-            client-secret: secret
+
+## Configuring info endpoint
+# https://www.baeldung.com/spring-boot-info-actuator-custom
+# https://www.callicoder.com/spring-boot-actuator/
+info:
+  project:
+    name: @project.name@
+    description: @project.description@
+    version: @project.version@
+    encoding: @project.build.sourceEncoding@
+    java-vendor: ${java.specification.vendor}
+    java:
+      version: @java.version@
+
 ---
 spring:
   profiles: dev
@@ -102,6 +109,8 @@ spring:
   profiles:
     active: logging
 logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} ${LOG_LEVEL_PATTERN:-%5p} %m%n"
   level:
     root: INFO
     org.springframework.web: INFO

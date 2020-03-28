@@ -54,18 +54,6 @@ public class GatewayKeycloackApplication {
         return new RedisRateLimiter(1, 2);
     }
 
-
-    /* required a bean of type 'org.springframework.http.codec.ServerCodecConfigurer' that could not be found. */
-    /* https://github.com/SpringCloud/spring-cloud-code/blob/master/ch15-1/ch15-1-gateway/src/main/java/cn/springcloud/book/gateway/GatewayApplication.java#L17 */
-    /*
-    @Bean
-    public ServerCodecConfigurer serverCodecConfigurer() {
-        return ServerCodecConfigurer.create();
-    }
-
-     */
-
-
     public static void main(String[] args) {
         SpringApplication.run(GatewayKeycloackApplication.class, args);
     }
