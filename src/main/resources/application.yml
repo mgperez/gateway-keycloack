@@ -4,9 +4,14 @@ spring:
 server:
   error:
     include-stacktrace: never
-  port: ${PORT:8862}
+  port: ${PORT:8762}
 remote:
-  home: http://localhost:9090  # idp
+  home: http://${KEYCLOAK_HOST}  # idp
+  #home: http://localhost:9090  # idp
+oidc:
+  issuer-uri: ${remote.home}/auth/realms/spring-boot-quickstart
+  client-id: {clientId}
+  client-secret: {clientSecret}
 ---
 spring:
   profiles:
@@ -84,7 +89,19 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${remote.home}/auth/realms/spring-boot-quickstart
+          #issuer-uri: ${remote.home}/auth/realms/spring-boot-quickstart
+          jwk-set-uri: ${remote.home}/auth/realms/spring-boot-quickstart/protocol/openid-connect/certs
+          #jwk-set-uri: ${remote.home}/auth/realms/spring-boot-quickstart/.well-known/openid-configuration
+      client:
+        provider:
+          keycloak:
+            issuer-uri: ${remote.home}/auth/realms/spring-boot-quickstart
+        registration:
+          keycloak:
+            client-id: spring-security
+            client-secret: secret
+
+# spring.security.oauth2.resourceserver.jwk.issuer-uri
 
 ## Configuring info endpoint
 # https://www.baeldung.com/spring-boot-info-actuator-custom
@@ -113,11 +130,12 @@ logging:
     console: "%d{yyyy-MM-dd HH:mm:ss} ${LOG_LEVEL_PATTERN:-%5p} %m%n"
   level:
     root: INFO
-    org.springframework.web: INFO
+    org.springframework.web: DEBUG
     org.springframework.web.HttpLogging: DEBUG
     org.springframework.web.reactive: DEBUG
     org.springframework.security: DEBUG
     org.springframework.security.oauth2: DEBUG
+    org.springframework.security.web: DEBUG
     org.springframework.cloud.gateway: DEBUG
     org.springframework.http.server.reactive: DEBUG
     reactor.netty.http.client: DEBUG

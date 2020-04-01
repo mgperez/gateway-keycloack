@@ -3,7 +3,8 @@
 #
 # Before building the docker image run:
 #
-# mvn clean package
+# mvn clean package -DskipTests
+# mvn clean package spring-boot:repackage
 #
 # Then, build the image with:
 #
@@ -11,7 +12,7 @@
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8762:8762 mgperez/gateway-keycloak-jvm
+# docker run -i --rm -p 8862:8862 mgperez/gateway-keycloak-jvm
 #
 ###
 FROM mgperez/alpine-java:base

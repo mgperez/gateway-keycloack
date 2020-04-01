@@ -1,0 +1,24 @@
+gateway-keycloak:
+  image: mgperez/gateway-keycloak-jvm
+  restart: unless-stopped
+  container_name: gateway-keycloak
+  build:
+    context: .
+    dockerfile: src/main/docker/Dockerfile.jvm
+  environment:
+    KEYCLOAK_HOST: keycloak:8080
+  links:
+    - db:redis
+    - iam-keycloak:keycloak
+  ports:
+    - 8762:8762
+  networks:
+    - keycloak-net
+  depends_on:
+    - db
+    - iam-keycloak
+  healthcheck:
+    test: ["CMD-SHELL", "curl -f http://127.0.0.1:8762/actuator/health || exit 1"]
+    interval: 10s
+    timeout: 1s
+    retries: 66

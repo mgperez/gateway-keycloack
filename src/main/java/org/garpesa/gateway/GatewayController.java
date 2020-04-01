@@ -3,6 +3,7 @@ package org.garpesa.gateway;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.cloud.gateway.webflux.ProxyExchange;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 
+@Slf4j
 @RestController
 public class GatewayController {
 
@@ -21,6 +23,12 @@ public class GatewayController {
 
     @Value("${remote.home}")
     private URI home;
+
+    @GetMapping(value = "/")
+	public String welcome() {
+		log.info("Showing the welcome message.");
+		return "Hello world from Springboot!";
+	}
 
     @GetMapping(SECURED)
     public Mono<ResponseEntity<byte[]>> secured(

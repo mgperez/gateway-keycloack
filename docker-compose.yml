@@ -1,9 +1,13 @@
 version: '3'
 # https://github.com/docker-library/redis/issues/111
 
+# Communication between multiple docker-compose projects
 networks:
-  redis-net:
+  backend:
     driver: bridge
+  keycloak_backend:
+    external: true
+
 
 volumes:
   redis-data:
@@ -22,23 +26,29 @@ services:
       timeout: 10s
       retries: 3
     networks:
-      - redis-net
+      - backend
     volumes:
       - redis-data:/data
 
-  gateway:
+  gateway-keycloak:
     image: mgperez/gateway-keycloak-jvm
     restart: unless-stopped
-    container_name: gateway
+    container_name: gateway-keycloak
     build:
       context: .
       dockerfile: src/main/docker/Dockerfile.jvm
+    environment:
+      #KEYCLOAK_HOST: 192.168.1.7:9091 # IP privada en Mac
+      KEYCLOAK_HOST: keycloak:8080 # IP network externa
     links:
       - db:redis
+    #external_links:
+    #  - keycloak
     ports:
       - 8762:8762
     networks:
-      - redis-net
+      - backend
+      - keycloak_backend
     depends_on:
       - db
     healthcheck:

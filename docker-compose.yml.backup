@@ -1,0 +1,109 @@
+version: '3'
+# https://github.com/docker-library/redis/issues/111
+
+# Communication between multiple docker-compose projects
+networks:
+  backend:
+    driver: bridge
+  keycloak_registry_tuto_backend:
+    external: true
+
+volumes:
+  redis-data:
+
+services:
+  db:
+    image: redis
+    restart: unless-stopped
+    container_name: redis
+    command: ["redis-server", "--appendonly", "yes"]
+    hostname: redis
+#    ports: ['6379:6379'] # the HTTP endpoint
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - backend
+    volumes:
+      - redis-data:/data
+
+  gateway-keycloak:
+    image: mgperez/gateway-keycloak-jvm
+    restart: unless-stopped
+    container_name: gateway-keycloak
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile.jvm
+    environment:
+      #KEYCLOAK_HOST: iam-keycloak:8080  # link docker
+      #KEYCLOAK_HOST: 192.168.1.7:9091 # IP privada en Mac
+      KEYCLOAK_HOST: keycloak:8080 # IP network externa
+    links:
+      - db:redis
+      #- iam-keycloak:iam-keycloak
+    ports:
+      - 8762:8762
+    networks:
+      - backend
+      - keycloak_registry_tuto_backend
+    depends_on:
+      - db
+      #- iam-keycloak
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8762/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 1s
+      retries: 66
+
+  postgres-keycloak:
+    image: postgres
+    restart: unless-stopped #Container will automatically restart on stop when it crashes but not if stopped
+    container_name: postgres-keycloak
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data:z #Share the directory from the host to the container with RW mode to store database's data
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+    #ports: ['5432:5432'] # the HTTP endpoint
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  #######################################
+  # Keycloak: The IAM
+  #######################################
+  iam-keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: iam-keycloak
+    restart: unless-stopped
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres-keycloak
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: password
+      KEYCLOAK_LOGLEVEL: DEBUG
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: Pa55w0rd
+      # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
+      #JDBC_PARAMS: "ssl=true"
+    command: ["-b", "0.0.0.0","-Dkeycloak.profile.feature.upload_scripts=enabled"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/"]
+      interval: 5s
+      timeout: 2s
+      retries: 15
+    ports:
+      - 9091:8080
+    depends_on:
+      - postgres-keycloak
+    networks:
+      - backend

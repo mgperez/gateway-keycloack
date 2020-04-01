@@ -10,6 +10,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * https://mkyong.com/spring-boot/spring-boot-yaml-example/
+ */
+@Slf4j
 @RestController
 @SpringBootApplication
 @EnableDiscoveryClient
@@ -56,6 +62,7 @@ public class GatewayKeycloackApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(GatewayKeycloackApplication.class, args);
+        log.info("SpringbootOnDocker application started successfully.");
     }
 
 }

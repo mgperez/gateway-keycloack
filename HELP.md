@@ -49,6 +49,8 @@ docker run --name my-redis-container --publish=6379:6379 -d redis
 
 Google: default route spring cloud gateway
 
+Google: registration keycloak spring security oauth2
+
 Creating our Microservices & Gateway
 
 https://medium.com/omarelgabrys-blog/microservices-with-spring-boot-creating-our-microserivces-gateway-part-2-31f8aa6b215b
