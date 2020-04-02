@@ -129,4 +129,7 @@ intercept-url:
   urls:
     -
       pattern: "/api/summary/table/**"
+      access: false # permitAll
+    -
+      pattern: "/api/login/**"
       access: true # permitAll
