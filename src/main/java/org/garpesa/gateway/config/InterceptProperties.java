@@ -27,6 +27,6 @@ public class InterceptProperties {
     @Data
     public static class Url {
         @NotNull private String pattern;
-        private boolean active=true; // default!
+        @NotNull private boolean access; // default!
     }
 }

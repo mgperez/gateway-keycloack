@@ -36,9 +36,9 @@ services:
     image: mgperez/gateway-keycloak-jvm
     restart: unless-stopped
     container_name: gateway-keycloak
-    build:
-      context: .
-      dockerfile: src/main/docker/Dockerfile.jvm
+#    build:
+#      context: .
+#      dockerfile: src/main/docker/Dockerfile.jvm
     environment:
       #KEYCLOAK_HOST: 192.168.1.7:9091 # IP privada en Mac
       KEYCLOAK_HOST: keycloak:8080 # IP network externa

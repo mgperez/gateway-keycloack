@@ -128,4 +128,4 @@ spring:
 intercept-url:
   urls:
   - pattern: "/api/**"
-    access: true # permitAll
+    access: false # permitAll

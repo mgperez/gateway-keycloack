@@ -66,8 +66,10 @@ public class SecurityConfig {
     @Value("${oidc.issuer-uri}")
     private String issuerUri;
 
+
     @Value( "${remote.home}" )
     private String audience;
+
 
 
     private final InterceptProperties config;
@@ -145,10 +147,13 @@ public class SecurityConfig {
 
         for(InterceptProperties.Url url : config.getUrls()) {
             log.debug("pattern: {}", url.getPattern());
-            log.debug("isActive: {}", url.isActive());
-            if(url.isActive()) {
+            log.debug("access: {}", url.isAccess());
+
+            boolean active = url.isAccess();
+            if(active) {
                 http.authorizeExchange().pathMatchers(url.getPattern()).permitAll();
             }
+
 
         }
 
