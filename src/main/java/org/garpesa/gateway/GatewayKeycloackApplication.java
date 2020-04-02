@@ -2,6 +2,7 @@ package org.garpesa.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @SpringBootApplication
 @EnableDiscoveryClient
+@EnableConfigurationProperties
 public class GatewayKeycloackApplication {
 
     @RequestMapping("/hystrixfallback")

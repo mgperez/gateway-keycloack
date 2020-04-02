@@ -7,6 +7,8 @@ networks:
     driver: bridge
   keycloak_backend:
     external: true
+  spring-boot-docker_quarkus:
+    external: true
 
 
 volumes:
@@ -40,6 +42,11 @@ services:
     environment:
       #KEYCLOAK_HOST: 192.168.1.7:9091 # IP privada en Mac
       KEYCLOAK_HOST: keycloak:8080 # IP network externa
+      GW_HOST: gateway:8888
+      CONFIG_LOCATION: file:/config/application.yml
+      LOGGING_LOCATION: file:/config/logback-spring.xml
+    volumes:
+      - ./data/gateway-keycloak/config:/config
     links:
       - db:redis
     #external_links:
@@ -49,6 +56,7 @@ services:
     networks:
       - backend
       - keycloak_backend
+      - spring-boot-docker_quarkus
     depends_on:
       - db
     healthcheck:

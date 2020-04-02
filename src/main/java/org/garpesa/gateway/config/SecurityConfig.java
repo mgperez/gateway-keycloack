@@ -1,6 +1,8 @@
 package org.garpesa.gateway.config;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
@@ -9,8 +11,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
-import org.springframework.security.oauth2.jwt.ReactiveJwtDecoders;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
 import static org.garpesa.gateway.GatewayController.SECURED;
@@ -19,6 +19,7 @@ import static org.garpesa.gateway.GatewayController.UNSECURED;
 /**
  * https://www.baeldung.com/spring-webflux
  * https://www.baeldung.com/rest-api-spring-oauth2-angular
+ * https://stackoverflow.com/questions/47354171/spring-webflux-custom-authentication-for-api
  *
  * https://github.com/bassmake/spring-cloud-gateway-with-keycloak
  *
@@ -50,6 +51,11 @@ import static org.garpesa.gateway.GatewayController.UNSECURED;
  *
  * How to Load Application Properties from Database
  * https://www.opencodez.com/java/how-to-load-application-properties-from-database.htm
+ *
+ * Spring Security Expressions
+ * https://www.baeldung.com/spring-security-expressions
+ *
+ * https://www.concretepage.com/spring-5/spring-security-jdbcdaoimpl
  */
 @Slf4j
 @EnableWebFluxSecurity
@@ -62,6 +68,17 @@ public class SecurityConfig {
 
     @Value( "${remote.home}" )
     private String audience;
+
+
+    private final InterceptProperties config;
+
+    //private final InterceptProperties config;
+
+
+    @Autowired
+    public SecurityConfig(InterceptProperties config) {
+        this.config = config;
+    }
 
     // Disable webflux security
     /*
@@ -86,7 +103,7 @@ public class SecurityConfig {
         This is where we configure the security required for our endpoints and setup our app to serve as
         an OAuth2 Resource Server, using JWT validation.
         https://tools.ietf.org/html/rfc6750#section-3.1
-        */
+        *
         http
         .csrf()
         .disable()
@@ -102,8 +119,45 @@ public class SecurityConfig {
         .and()
         .oauth2ResourceServer()
         .jwt();
+         */
 
         log.debug("issuerUri: ", issuerUri);
+
+        http.csrf().disable();
+
+
+        /*
+        First, by calling authorizeExchange() method to expose AuthorizeExchangeSpec
+        lets us proceed with authentication details. With this, we can apply a matcher
+        and permission model to our endpoints. For this example, we want to open several
+        endpoints to everyone. This is where permitAll() can be applied to a
+        multi-argument pathMatchers() expression.
+        */
+
+        http.authorizeExchange()
+        .matchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+        .matchers(EndpointRequest.to("health")).permitAll()
+        .matchers(EndpointRequest.to("info")).permitAll()
+        .pathMatchers(SECURED).authenticated()
+        .pathMatchers(UNSECURED).permitAll()
+        .pathMatchers("/role").hasRole("ADMIN")
+        .pathMatchers(HttpMethod.GET,"/movies/**").permitAll();
+
+        for(InterceptProperties.Url url : config.getUrls()) {
+            log.debug("pattern: {}", url.getPattern());
+            log.debug("isActive: {}", url.isActive());
+            if(url.isActive()) {
+                http.authorizeExchange().pathMatchers(url.getPattern()).permitAll();
+            }
+
+        }
+
+        // Disable authentication for `/auth/**` routes.
+        http.authorizeExchange().pathMatchers("/auth/**").permitAll();
+        http.authorizeExchange().anyExchange().authenticated()
+        .and()
+        .oauth2ResourceServer()
+        .jwt();
 
         //http.csrf().disable();
         //http.headers().frameOptions().disable();

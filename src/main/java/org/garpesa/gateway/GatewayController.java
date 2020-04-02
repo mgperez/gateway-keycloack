@@ -39,6 +39,7 @@ public class GatewayController {
 
     @GetMapping(UNSECURED)
     public Mono<ResponseEntity<byte[]>> unsecured(ProxyExchange<byte[]> proxy) {
+        log.info("Showing the UNSECURED message.");
         return proxy.uri(home.toString() + "/auth/realms/master").get();
     }
 

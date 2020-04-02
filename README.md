@@ -15,6 +15,7 @@ Make sure redis is running on localhost:6379 (using docker).
 # Build
 ./mvnw clean package spring-boot:repackage -DskipTests
 docker-compose build
+
 docker-compose config
 docker-compose config --volume
 

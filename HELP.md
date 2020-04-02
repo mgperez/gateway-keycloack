@@ -35,6 +35,14 @@ The following guides illustrate how to use some features concretely:
 
 * [Spring YAML Configuration](https://www.baeldung.com/spring-yaml)
 
+* [Externalized Configuration](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config)
+
+  https://spring.io/guides/gs/spring-boot-docker/
+
+  https://www.baeldung.com/dockerizing-spring-boot-application
+
+  
+
 * [Using Redis in Docker Containers.](https://www.ionos.com/community/hosting/redis/using-redis-in-docker-containers/)
 
 ```
