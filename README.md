@@ -56,3 +56,8 @@ http://localhost:8762/ibcs-manager/
 ```
 
 Then run GatewayKeycloackApplicationTests. 
+
+Spring Boot Hello World on WildFly
+http://www.mastertheboss.com/jboss-frameworks/spring/spring-boot-hello-world-on-wildfly
+https://www.adictosaltrabajo.com/2018/12/13/spring-boot-war-o-jar-ambos/
+https://spring.io/blog/2014/03/07/deploying-spring-boot-applications

@@ -49,7 +49,7 @@ spring:
           filters:
             - RewritePath=/test/(?<segment>.*), /$\{segment}
         - id: ibcs-manager_route
-          uri: http://localhost:5000
+          uri: http://${IBCS_MANAGER_HOST}
           predicates:
             - Path=/ibcs-manager/**
           filters:
@@ -132,4 +132,6 @@ intercept-url:
       access: false # permitAll
     -
       pattern: "/api/login/**"
+      access: true # permitAll
+    - pattern: "/ibcs-manager/**"
       access: true # permitAll
