@@ -60,6 +60,12 @@ spring:
             - Path=/api/**
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
+        - id: api-service-installation_route
+          uri: http://${INSTALLATION_SERVICE_HOST}
+          predicates:
+            - Path=/manager-installations/**
+          filters:
+            - RewritePath=/manager-installations/(?<segment>.*), /$\{segment}
 
 #eureka:
 #  client:
@@ -134,4 +140,6 @@ intercept-url:
       pattern: "/api/login/**"
       access: true # permitAll
     - pattern: "/ibcs-manager/**"
+      access: true # permitAll
+    - pattern: "/manager-installations/**"
       access: true # permitAll

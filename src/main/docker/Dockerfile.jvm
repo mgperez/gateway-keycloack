@@ -6,19 +6,48 @@
 # mvn clean package -DskipTests
 # mvn clean package spring-boot:repackage
 #
+# Run the application
+# java -jar target/*-SNAPSHOT.jar
+#
 # Then, build the image with:
 #
+# build the image
 # docker build -f src/main/docker/Dockerfile.jvm -t mgperez/gateway-keycloak-jvm .
 #
-# Then run the container using:
+# list the image
+# docker images
 #
-# docker run -i --rm -p 8862:8862 mgperez/gateway-keycloak-jvm
+# login into your registry (Docker Hub)
+# docker login
+#
+# tag the image
+# docker tag java-api <repository name>/java-api
+#
+# push the image
+# docker push <repository name>/java-api
+#
+# Running The API on Docker
+#
+# Then run the container using:
+# docker run -d -i --rm -p 8862:8862 --name javaapi mgperez/gateway-keycloak-jvm
+#
+# list the container
+# docker ps
+#
+# logs
+# docker logs javaapi
+#
+# exec into running container
+# docker exec -it javaapi /bin/sh
 #
 ###
 FROM mgperez/alpine-java:base
+# maintainer
 MAINTAINER mgperez
+# update packages and install maven
 RUN apk --no-cache --update add busybox-suid bash curl unzip sudo openssh-client shadow wget
 COPY target/*.jar /opt/spring-cloud/lib/app.jar
+# attach volumes
 VOLUME /var/lib/spring-cloud/config-repo
 ENTRYPOINT ["/usr/bin/java"]
 CMD ["-jar", "/opt/spring-cloud/lib/app.jar", "spring.config.location=$CONFIG_LOCATION", "logging.config=$LOGGING_LOCATION"]

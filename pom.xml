@@ -163,6 +163,7 @@
         </resources>
 
         <plugins>
+            <!-- mvn clean install -Dmaven.test.skip=true -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -173,6 +174,17 @@
                     </profiles>
                 </configuration>
                 -->
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.garpesa.gateway.ApplicationController</mainClass>
+                            <!-- <outputDirectory>${project.basedir}/docker</outputDirectory> -->
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

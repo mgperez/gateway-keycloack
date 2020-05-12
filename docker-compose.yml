@@ -5,11 +5,12 @@ version: '3'
 networks:
   backend:
     driver: bridge
-  keycloak_backend:
+#  keycloak_backend:
+#    external: true
+#  spring-boot-docker_quarkus:
+#    external: true
+  egates-installationmgt-back_egates-manager-installationmgt-service-network:
     external: true
-  spring-boot-docker_quarkus:
-    external: true
-
 
 volumes:
   redis-data:
@@ -44,6 +45,7 @@ services:
       KEYCLOAK_HOST: keycloak:8080 # IP network externa
       GW_HOST: gateway:8888
       IBCS_MANAGER_HOST: web:8080
+      INSTALLATION_SERVICE_HOST: egates-manager-installationmgt-service:8080
       CONFIG_LOCATION: file:/config/application.yml
       LOGGING_LOCATION: file:/config/logback-spring.xml
     volumes:
@@ -56,8 +58,9 @@ services:
       - 8762:8762
     networks:
       - backend
-      - keycloak_backend
-      - spring-boot-docker_quarkus
+      #- keycloak_backend
+      #- spring-boot-docker_quarkus
+      - egates-installationmgt-back_egates-manager-installationmgt-service-network
     depends_on:
       - db
     healthcheck:
